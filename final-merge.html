@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>INBOXHERO – Full Experience</title>
+
+  <!-- Pixel-style font -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #000;
+      color: #ffc845;
+      font-family: "Press Start 2P", monospace;
+      overflow: hidden;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .fade-out-intro {
+      opacity: 0;
+      transition: opacity 0.5s ease-out;
+    }
+
+    /* ---------- START GATE ---------- */
+
+    #startGate {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #ffc845;
+      z-index: 9999;
+    }
+
+    /* ---------- INTRO SCREEN (BUZZSTREAM PRESENTS) ---------- */
+
+    #introScreen {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+      overflow: hidden;
+    }
+
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      opacity: 0.15;
+      border-radius: 50%;
+      animation: introTwinkle 3s infinite ease-in-out;
+    }
+
+    @keyframes introTwinkle {
+      0%   { opacity: 0.15; }
+      50%  { opacity: 1; }
+      100% { opacity: 0.15; }
+    }
+
+    #presents {
+      font-size: 32px;
+      display: none;
+      opacity: 1;
+      z-index: 5;
+      text-align: center;
+    }
+
+    #inboxed {
+      font-size: 96px;
+      opacity: 0;
+      transform: translateY(-140%);
+      z-index: 5;
+      text-align: center;
+    }
+
+    .fadeout {
+      animation: fadeOut 2s forwards;
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to   { opacity: 0; }
+    }
+
+    .drop {
+      animation: drop 0.9s ease-out forwards;
+    }
+
+    @keyframes drop {
+      0%   { transform: translateY(-140%); opacity: 0; }
+      40%  { opacity: 1; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    /* ---------- SECOND SCREEN (INBOXHERO SKYLINE) ---------- */
+
+    .screen {
+      position: relative;
+      height: 100vh;
+      overflow: hidden;
+      color: #fff;
+      font-family: "Press Start 2P", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .sky-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        #02030a 0%,
+        #041024 15%,
+        #082040 30%,
+        #123a6f 45%,
+        #1e4fa8 55%,
+        #ffc72c 65%,
+        #ff9b2c 72%,
+        #0b1220 85%,
+        #000000 100%
+      );
+      z-index: 0;
+      animation: skyPanDown 10s ease-out forwards;
+    }
+
+    .star-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      animation: skyPanDown 10s ease-out forwards;
+    }
+
+    .star-layer::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      will-change: opacity;
+    }
+
+    .star-layer-1::before {
+      background-color: #f5fbff;
+      box-shadow:
+        40px 30px #f5fbff,
+        120px 80px #f5fbff,
+        220px 40px #f5fbff,
+        340px 120px #f5fbff,
+        460px 60px #f5fbff,
+        580px 20px #f5fbff,
+        700px 140px #f5fbff,
+        840px 45px #f5fbff,
+        980px 160px #f5fbff,
+        1120px 90px #f5fbff,
+        1260px 30px #f5fbff,
+        1400px 150px #f5fbff,
+        1550px 55px #f5fbff,
+        1700px 25px #f5fbff,
+        1850px 130px #f5fbff,
+        2000px 40px #f5fbff,
+        2150px 170px #f5fbff,
+        2300px 80px #f5fbff,
+        2450px 20px #f5fbff,
+        2600px 140px #f5fbff,
+        2750px 35px #f5fbff,
+        2900px 150px #f5fbff,
+        3050px 60px #f5fbff,
+        3200px 110px #f5fbff,
+        3350px 85px #f5fbff;
+      animation: twinkle 3s infinite alternate;
+      opacity: 0.9;
+    }
+
+    .star-layer-2::before {
+      width: 4px;
+      height: 4px;
+      background-color: #cfe4ff;
+      box-shadow:
+        80px 20px #cfe4ff,
+        200px 70px #cfe4ff,
+        320px 15px #cfe4ff,
+        440px 95px #cfe4ff,
+        560px 40px #cfe4ff,
+        680px 130px #cfe4ff,
+        800px 50px #cfe4ff,
+        920px 150px #cfe4ff,
+        1040px 35px #cfe4ff,
+        1160px 100px #cfe4ff,
+        1280px 25px #cfe4ff,
+        1400px 125px #cfe4ff,
+        1520px 45px #cfe4ff,
+        1640px 140px #cfe4ff,
+        1760px 30px #cfe4ff,
+        1880px 110px #cfe4ff,
+        2000px 60px #cfe4ff,
+        2120px 150px #cfe4ff,
+        2240px 35px #cfe4ff,
+        2360px 120px #cfe4ff,
+        2480px 25px #cfe4ff,
+        2600px 135px #cfe4ff,
+        2720px 45px #cfe4ff,
+        2840px 145px #cfe4ff;
+      animation: bigTwinkle 3.8s infinite alternate;
+      opacity: 0.8;
+      animation-delay: 0.6s;
+    }
+
+    @keyframes twinkle {
+      0%   { opacity: 0.2; }
+      50%  { opacity: 1;   }
+      100% { opacity: 0.3; }
+    }
+
+    @keyframes bigTwinkle {
+      0%   { opacity: 0.25; }
+      40%  { opacity: 1;    }
+      100% { opacity: 0.35; }
+    }
+
+    @keyframes skyPanDown {
+      0%   { transform: translateY(-10vh); }
+      100% { transform: translateY(15vh); }
+    }
+
+    .content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .top-panel {
+      flex: 2 1 66%;
+      position: relative;
+    }
+
+    .bottom-panel {
+      flex: 1 1 40%;
+      background: #000;
+      padding: 2rem 8vw;
+      display: flex;
+      align-items: center;
+    }
+
+    .hero-sprite {
+      position: absolute;
+      left: 50%;
+      bottom: 90px;
+      transform: translateX(-50%) translateY(8px) scale(1);
+      width: 110px;
+      image-rendering: pixelated;
+      opacity: 0;
+      transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+    }
+
+    .hero-visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+
+    @keyframes heroTeleport {
+      0% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1, 1);
+      }
+      20% {
+        opacity: 0.2;
+      }
+      40% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1, 0.6);
+      }
+      60% {
+        opacity: 0.2;
+      }
+      80% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-40px) scale(0.9, 0.3);
+      }
+      100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-120px) scale(0.8, 0.1);
+      }
+    }
+
+    .hero-teleport {
+      animation: heroTeleport 0.8s steps(4, end) forwards;
+    }
+
+    .flash-overlay {
+      position: absolute;
+      inset: 0;
+      background: #ffffff;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .flash-active {
+      animation: flashPop 0.5s ease-out;
+    }
+
+    @keyframes flashPop {
+      0%   { opacity: 0; }
+      10%  { opacity: 1; }
+      25%  { opacity: 0.3; }
+      40%  { opacity: 0.9; }
+      100% { opacity: 0; }
+    }
+
+    .lightning-bolt {
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 18px;
+      height: 220px;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .lightning-bolt::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, #ffffff 0%, #fff9c4 40%, #ffe082 80%, transparent 100%);
+      clip-path: polygon(
+        45% 0%,
+        65% 18%,
+        50% 18%,
+        70% 40%,
+        55% 40%,
+        75% 65%,
+        60% 65%,
+        80% 100%,
+        35% 72%,
+        50% 72%,
+        30% 48%,
+        45% 48%,
+        25% 22%,
+        40% 22%
+      );
+      box-shadow:
+        0 0 18px rgba(255, 255, 255, 0.9),
+        0 0 32px rgba(255, 248, 225, 0.8);
+    }
+
+    .lightning-strike {
+      animation: lightningStrike 0.45s ease-out;
+    }
+
+    @keyframes lightningStrike {
+      0% {
+        opacity: 0;
+        transform: translateX(-50%) scaleY(0.4);
+      }
+      10% {
+        opacity: 1;
+        transform: translateX(-50%) scaleY(1.05);
+      }
+      30% {
+        opacity: 0.85;
+        transform: translateX(-50%) scaleY(0.95);
+      }
+      60% {
+        opacity: 0.4;
+        transform: translateX(-50%) scaleY(0.8);
+      }
+      100% {
+        opacity: 0;
+        transform: translateX(-50%) scaleY(0.4);
+      }
+    }
+
+    .text-box {
+      font-size: 24px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+    }
+
+    @media (max-width: 768px) {
+      .bottom-panel {
+        padding: 0.75rem 1.5rem 1.25rem;
+      }
+      .text-box {
+        font-size: 0.7rem;
+      }
+      .hero-sprite {
+        width: 80px;
+      }
+    }
+
+    /* Game iframe */
+    #gameFrame {
+      border: none;
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========== START GATE ========== -->
+  <div id="startGate">PRESS ANY KEY TO START</div>
+
+  <!-- ========== SCREEN 1: BUZZSTREAM PRESENTS INTRO ========== -->
+  <div id="introScreen">
+    <div id="presents">BuzzStream Presents</div>
+    <div id="inboxed">INBOX HERO</div>
+  </div>
+
+  <!-- ========== SCREEN 2: INBOXHERO SKYLINE ========== -->
+  <div id="secondScreen" class="screen hidden">
+    <div class="sky-bg"></div>
+    <div class="star-layer star-layer-1"></div>
+    <div class="star-layer star-layer-2"></div>
+
+    <div class="content">
+      <div class="top-panel">
+        <img src="https://www.buzzstream.com/wp-content/uploads/2025/11/inboxhero-1.png" alt="InboxHero" class="hero-sprite" id="heroSprite" />
+        <div class="flash-overlay" id="flashOverlay"></div>
+        <div class="lightning-bolt" id="lightningBolt"></div>
+      </div>
+
+      <div class="bottom-panel">
+        <div class="text-box" id="introText"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== GAME FRAME ========== -->
+  <iframe id="gameFrame" src="final-game.html" class="hidden"></iframe>
+
+  <script>
+    /* ---------- START GATE ---------- */
+
+    const startGate = document.getElementById("startGate");
+
+    function beginExperience() {
+      startGate.style.display = "none";
+      window.removeEventListener("keydown", beginExperience);
+      window.removeEventListener("click", beginExperience);
+    }
+
+    window.addEventListener("keydown", beginExperience);
+    window.addEventListener("click", beginExperience);
+
+    /* ---------- INTRO SCREEN LOGIC ---------- */
+
+    const introScreen  = document.getElementById("introScreen");
+    const secondScreen = document.getElementById("secondScreen");
+    const presents     = document.getElementById("presents");
+    const inboxed      = document.getElementById("inboxed");
+    const gameFrame    = document.getElementById("gameFrame");
+
+    let introReady = false;
+    let introDismissed = false;
+
+    for (let i = 0; i < 60; i++) {
+      const s = document.createElement("div");
+      s.className = "star";
+      s.style.top = Math.random() * 100 + "%";
+      s.style.left = Math.random() * 100 + "%";
+      s.style.animationDelay = (Math.random() * 3) + "s";
+      introScreen.appendChild(s);
+    }
+
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        presents.style.display = "block";
+        setTimeout(() => presents.classList.add("fadeout"), 2000);
+      }, 300);
+    });
+
+    function afterPresents() {
+      setTimeout(() => inboxed.classList.add("drop"), 300);
+    }
+    presents.addEventListener("animationend", afterPresents);
+
+    function afterInboxed() {
+      introReady = true;
+
+      setTimeout(() => {
+        if (!introDismissed) handleIntroDismiss();
+      }, 2200);
+    }
+    inboxed.addEventListener("animationend", afterInboxed);
+
+    function handleIntroDismiss() {
+      if (!introReady || introDismissed) return;
+      introDismissed = true;
+
+      document.removeEventListener("click", handleIntroDismiss);
+      document.removeEventListener("keydown", handleIntroDismiss);
+
+      introScreen.classList.add("fade-out-intro");
+
+      setTimeout(() => {
+        introScreen.style.display = "none";
+        secondScreen.classList.remove("hidden");
+        startSecondScreen();
+      }, 500);
+    }
+
+    document.addEventListener("click", handleIntroDismiss);
+    document.addEventListener("keydown", handleIntroDismiss);
+
+    /* ---------- SECOND SCREEN ---------- */
+
+    const lines = [
+      "It's the year 2026.",
+      "",
+      "Journalists are getting thousands of irrelevant pitches daily.",
+      "",
+      "Only one person can save them.",
+      "",
+      "The Inbox Hero."
+    ];
+
+    const typingSpeed = 35;
+    const linePause   = 500;
+
+    const textElement   = document.getElementById("introText");
+    const heroSprite    = document.getElementById("heroSprite");
+    const flashOverlay  = document.getElementById("flashOverlay");
+    const lightningBolt = document.getElementById("lightningBolt");
+
+    let lineIndex = 0;
+    let charIndex = 0;
+
+    function startGameIframe() {
+
+      secondScreen.classList.add("fade-out-intro");
+
+      setTimeout(() => {
+        secondScreen.style.display = "none";
+        gameFrame.classList.remove("hidden");
+
+        // CRUCIAL FIX: give iframe focus
+        setTimeout(() => {
+          if (gameFrame && gameFrame.contentWindow) {
+            gameFrame.contentWindow.focus();
+          }
+        }, 150);
+
+      }, 500);
+    }
+
+    function triggerHeroReveal() {
+      heroSprite.classList.add("hero-visible");
+
+      flashOverlay.classList.remove("flash-active");
+      void flashOverlay.offsetWidth;
+      flashOverlay.classList.add("flash-active");
+
+      lightningBolt.classList.remove("lightning-strike");
+      void lightningBolt.offsetWidth;
+      lightningBolt.classList.add("lightning-strike");
+
+      setTimeout(() => {
+        heroSprite.classList.add("hero-teleport");
+      }, 2200);
+
+      heroSprite.addEventListener("animationend", () => {
+        startGameIframe();
+      }, { once: true });
+    }
+
+    function typeNextChar() {
+      if (lineIndex >= lines.length) return;
+
+      const currentLine = lines[lineIndex];
+
+      if (charIndex < currentLine.length) {
+        textElement.textContent += currentLine.charAt(charIndex);
+        charIndex++;
+        setTimeout(typeNextChar, typingSpeed);
+      } else {
+        textElement.textContent += "\n";
+        lineIndex++;
+        charIndex = 0;
+
+        if (lineIndex < lines.length) {
+          setTimeout(typeNextChar, linePause);
+        } else {
+          triggerHeroReveal();
+        }
+      }
+    }
+
+    function startSecondScreen() {
+      typeNextChar();
+    }
+
+  </script>
+</body>
+</html>
