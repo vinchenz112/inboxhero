@@ -1,0 +1,2566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>INBOXED – Shift Timer Edition (150% Zoom)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root {
+--bg: #050816;
+--shell-border: #1d4f91;
+--text-main: #f4f7ff;
+--text-dim: #9fb4d6;
+--yellow: #ffc845;
+--red: #ff5c5c;
+--green: #4ade80;
+--inbox-bg: #ffffff;
+--inbox-border: #d1d5db;
+--row-border: #e5e7eb;
+--row-active: #e0f2fe;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+margin: 0;
+padding: 0;
+height: 100%;
+overflow: hidden;
+}
+
+body {
+background:
+radial-gradient(circle at top, #1b2840 0, var(--bg) 55%, #02030a 100%);
+font-family: 'Press Start 2P', system-ui, sans-serif;
+color: var(--text-main);
+display: flex;
+align-items: center;
+justify-content: center;
+
+width: calc(100% / 1.2);
+height: calc(100% / 1.2);
+transform: scale(1.2);
+transform-origin: top left;
+}
+
+.game-shell {
+width: 100%;
+height: 100vh;
+padding: 18px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.frame {
+width: 100%;
+max-width: 1100px;
+height: 100%;
+max-height: 700px;
+border-radius: 6px;
+border: 4px solid var(--shell-border);
+background: linear-gradient(135deg, #050910, #0b1422);
+box-shadow:
+0 0 0 2px rgba(0,0,0,0.9),
+0 0 26px rgba(21,58,102,0.9),
+inset 0 0 10px rgba(0,0,0,0.9);
+padding: 14px 16px 16px;
+position: relative;
+overflow: hidden;
+display: flex;
+flex-direction: column;
+}
+
+.header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 10px;
+position: relative;
+padding-right: 72px;
+min-height: 44px;
+}
+
+.title {
+color: var(--yellow);
+letter-spacing: 0.14em;
+text-transform: uppercase;
+text-shadow:
+0 0 4px rgba(0,0,0,0.9),
+0 0 8px rgba(21,58,102,0.9);
+font-size: 0.9rem;
+}
+
+.subtitle {
+font-size: 0.65rem;
+color: var(--text-dim);
+text-align: right;
+text-transform: uppercase;
+line-height: 1.3;
+}
+
+#shiftTimer {
+position: absolute;
+left: 50%;
+top: 6px;
+transform: translateX(-50%);
+font-family: 'Press Start 2P', system-ui, sans-serif;
+font-size: 24px;
+letter-spacing: 0.08em;
+color: var(--yellow);
+text-shadow:
+0 0 0 #000,
+0 1px 0 #000,
+1px 0 0 #000,
+-1px 0 0 #000,
+0 -1px 0 #000;
+}
+
+.stats-bar {
+position: absolute;
+right: 14px;
+top: 6px;
+display: flex;
+align-items: center;
+gap: 0;
+background: none;
+padding: 0;
+z-index: 5;
+}
+.stats-bar .stat-group {
+display: flex;
+align-items: baseline;
+gap: 6px;
+}
+.stats-bar .stat-label {
+display: none;
+}
+.stats-bar .stat-value {
+font-family: 'Press Start 2P', system-ui, sans-serif;
+font-size: 26px;
+letter-spacing: 0.04em;
+color: var(--yellow);
+line-height: 1;
+text-shadow:
+0 0 0 #000,
+0 1px 0 #000,
+1px 0 0 #000,
+-1px 0 0 #000,
+0 -1px 0 #000;
+}
+
+.main-area {
+flex: 1;
+display: flex;
+flex-direction: column;
+gap: 8px;
+position: relative;
+margin-top: 8px;
+}
+
+.window {
+flex: 1;
+border-radius: 4px;
+border: 3px solid #111827;
+background: #e5e7eb;
+box-shadow:
+0 0 0 2px rgba(0,0,0,0.9),
+0 0 18px rgba(15,23,42,0.9);
+display: flex;
+flex-direction: column;
+overflow: hidden;
+}
+
+.window-titlebar {
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 6px 8px;
+background: linear-gradient(180deg, #020617, #153a66);
+color: #e5e7eb;
+border-bottom: 1px solid #000;
+text-transform: uppercase;
+font-size: 0.6rem;
+letter-spacing: 0.12em;
+}
+
+.inbox-container {
+flex: 1;
+background: var(--inbox-bg);
+border-top: 1px solid var(--inbox-border);
+border-bottom: 1px solid var(--inbox-border);
+position: relative;
+overflow: hidden;
+}
+
+.inbox-inner {
+position: absolute;
+inset: 0;
+}
+
+#inboxStack {
+position: relative;
+width: 100%;
+height: 100%;
+overflow: hidden;
+}
+
+.email-row {
+position: absolute;
+left: 0;
+width: 100%;
+height: 32px;
+display: flex;
+align-items: center;
+padding: 0 8px;
+border-top: 1px solid var(--row-border);
+border-bottom: 1px solid var(--row-border);
+font-size: 0.65rem;
+background: #ffffff;
+color: #030712;
+transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.email-row.active {
+background: var(--row-active);
+box-shadow:
+inset 2px 0 0 #1d4f91,
+0 0 0 1px rgba(37,99,235,0.5);
+}
+
+.email-row.falling {
+animation: email-fall 1.0s linear forwards;
+}
+
+@keyframes email-fall {
+from {
+transform: translateY(-220%);
+opacity: 0;
+}
+to {
+transform: translateY(0);
+opacity: 1;
+}
+}
+
+.cell-checkbox {
+width: 24px;
+text-align: center;
+color: #6b7280;
+}
+
+.cell-from {
+width: 30%;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+padding-right: 6px;
+color: #111827;
+}
+
+.cell-subject {
+flex: 1;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+padding-right: 6px;
+}
+
+.cell-icons {
+width: 50px;
+display: flex;
+justify-content: flex-end;
+gap: 6px;
+font-size: 0.9rem;
+color: #9ca3af;
+}
+
+.inbox-footer {
+padding: 3px 8px;
+font-size: 0.55rem;
+color: #4b5563;
+background: #f3f4f6;
+border-top: 1px solid #d1d5db;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+#journalistRole {
+  margin: 6px auto 4px;
+  font-family: 'Press Start 2P', system-ui, sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: #9fb4d6; /* light blue on dark background */
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.control-bar {
+margin-top: 8px;
+padding: 10px 14px;
+border-radius: 6px;
+background: linear-gradient(180deg, #020617, #020617 60%, #030712 100%);
+border: 2px solid rgba(148,163,184,0.9);
+display: flex;
+justify-content: center;
+align-items: center;
+gap: 24px;
+text-transform: uppercase;
+font-size: 0.8rem;
+}
+
+.control-group {
+display: inline-flex;
+align-items: center;
+gap: 8px;
+}
+
+.control-key {
+padding: 4px 10px;
+border-radius: 4px;
+border: 2px solid rgba(148,163,184,0.9);
+background: #020617;
+min-width: 52px;
+font-size: 26px;
+line-height: 1;
+text-align: center;
+}
+
+.control-label {
+font-size: 0.75rem;
+color: var(--text-dim);
+}
+
+.control-group.active .control-key {
+border-color: var(--yellow);
+box-shadow: 0 0 6px rgba(255,200,69,0.8);
+transform: translateY(1px);
+}
+
+.control-group.active .control-label {
+color: var(--yellow);
+}
+
+.feedback {
+font-size: 0.7rem;
+text-align: center;
+margin-top: 4px;
+min-height: 1.4em;
+}
+
+.feedback.good { color: var(--green); }
+.feedback.bad { color: var(--red); }
+.feedback.neutral { color: var(--text-dim); }
+.strikes-bar {
+display:flex;
+align-items:center;
+gap:8px;
+font-size:10px;
+}
+#strikeValue {
+color: #ff5c5c;
+}
+#redFlash {
+position:fixed;
+inset:0;
+background:rgba(255,0,0,0.5);
+opacity:0;
+pointer-events:none;
+z-index:99998;
+}
+.flash-on {
+animation: flashRed 0.25s ease-out;
+}
+@keyframes flashRed {
+0% { opacity:1; }
+100% { transform: scale(1); color: #4ade80; }
+}
+
+#instructionsOverlay {
+position: fixed;
+inset: 0;
+background: rgba(3, 6, 20, 0.92);
+color: #ffdd57;
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 9999;
+font-family: 'Press Start 2P', system-ui, sans-serif;
+transition: opacity .5s ease;
+}
+#instructionsPanel {
+max-width: 820px;
+margin: 0 24px;
+border: 4px solid #1d4f91;
+background: linear-gradient(135deg, #0b1422, #050910);
+box-shadow:
+0 0 0 2px rgba(0,0,0,0.9),
+0 0 26px rgba(21,58,102,0.9),
+inset 0 0 10px rgba(0,0,0,0.9);
+padding: 24px;
+text-align: center;
+border-radius: 8px;
+}
+#instructionsPanel h2 {
+margin: 0 0 16px 0;
+font-size: 18px;
+letter-spacing: 0.12em;
+color: #ffc845;
+text-transform: uppercase;
+}
+#instructionsPanel p {
+margin: 10px 0;
+font-size: 12px;
+line-height: 1.8;
+color: #f4f7ff;
+}
+#instructionsPanel .cta {
+margin-top: 18px;
+font-size: 12px;
+color: #9fb4d6;
+}
+#instructionsPanel kbd {
+padding: 3px 6px;
+border: 2px solid rgba(148,163,184,0.9);
+background: #020617;
+border-radius: 4px;
+font-size: 12px;
+color: #ffdd57;
+}
+
+.hidden { display: none !important; }
+.fade-out { opacity: 0; }
+
+@media (max-width: 900px) {
+.frame { padding: 10px; }
+.header { flex-direction: column; align-items: flex-start; gap: 4px; }
+#shiftTimer {
+position: static;
+transform: none;
+margin-top: 4px;
+}
+.stats-bar {
+position: static;
+margin-top: 4px;
+}
+}
+
+.particle {
+position: absolute;
+width: 12px;
+height: 12px;
+pointer-events: none;
+opacity: 1;
+}
+
+@keyframes shake {
+0% { transform: translate(0px, 0px); }
+20% { transform: translate(-4px, 2px); }
+40% { transform: translate(4px, -2px); }
+60% { transform: translate(-3px, 3px); }
+80% { transform: translate(3px, -3px); }
+100% { transform: scale(1); color: #4ade80; }
+}
+
+.pixel-hearts {
+position:absolute;
+top:6px;
+left:14px;
+display:flex;
+gap:8px;
+z-index:20;
+}
+.pixel-hearts .heart {
+width:28px;
+height:28px;
+image-rendering:pixelated;
+}
+
+.pixel-hearts {
+position:absolute;
+top:6px;
+left:14px;
+display:flex;
+gap:12px;
+z-index:20;
+}
+.heart-sprite {
+--px:3px;
+width: calc(13 * var(--px));
+height: calc(12 * var(--px));
+}
+.heart-grid {
+display:grid;
+grid-template-columns: repeat(13, var(--px));
+grid-auto-rows: var(--px);
+}
+.heart-px.empty { background: transparent; }
+.heart-px.border { background: #000000; }
+.heart-px.fill { background: #ff0000; }
+.heart-px.shine { background: #ff0000; }
+
+.score-pop {
+animation: scorePop 0.18s ease-out;
+}
+@keyframes scorePop {
+0% { transform: scale(1); color: #fff176; }
+50% { transform: scale(1.25); color: #a6ff4f; }
+100% { transform: scale(1); color: #4ade80; }
+}
+
+#scoreValue.score-pop {
+color: #4ade80 !important;
+}
+
+.score-flash-green {
+animation: scoreFlashGreen 0.35s ease-out;
+}
+@keyframes scoreFlashGreen {
+0% { color:#4ade80; transform:scale(1); }
+40% { color:#86efac; transform:scale(1.25); }
+100% { color:var(--yellow); transform:scale(1); }
+}
+
+.score-flash-red {
+animation: scoreFlashRed 0.35s ease-out;
+}
+@keyframes scoreFlashRed {
+0% { color:#ff5c5c; transform:scale(1); }
+40% { color:#ff9999; transform:scale(1.25); }
+100% { color:var(--yellow); transform:scale(1); }
+}
+
+</style>
+</head>
+<body>
+
+<div id="instructionsOverlay">
+  <div id="instructionsPanel">
+    <h2 id="introClassTitle">You are a JOURNALIST</h2>
+
+    <p id="introClassDescription">
+      <!-- This will be filled in dynamically based on your journalist class -->
+    </p>
+
+    <p>
+      Press
+      <kbd style="font-size:22px;padding:6px 10px;">←</kbd>
+      to reject<br>
+      Press
+      <kbd style="font-size:22px;padding:6px 10px;">→</kbd>
+      to accept
+    </p>
+
+    <p>
+      Get through as many emails as you can in <strong>60 seconds</strong>.
+    </p>
+
+    <p class="cta">
+      Press any key to start.
+    </p>
+  </div>
+</div>
+
+
+</div>
+
+<div class="game-shell">
+<div class="frame">
+<div class="header">
+
+<div class="pixel-hearts" style="position:absolute; top:6px; left:14px; display:flex; gap:12px; z-index:20;">
+<div class="heart-sprite" id="heart1">
+<div class="heart-grid">
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px shine"></div>
+<div class="heart-px shine"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px shine"></div>
+<div class="heart-px shine"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+</div>
+</div>
+<div class="heart-sprite" id="heart2">
+<div class="heart-grid">
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px shine"></div>
+<div class="heart-px shine"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px shine"></div>
+<div class="heart-px shine"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+</div>
+</div>
+<div class="heart-sprite" id="heart3">
+<div class="heart-grid">
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px shine"></div>
+<div class="heart-px shine"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px shine"></div>
+<div class="heart-px shine"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px fill"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px border"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+<div class="heart-px empty"></div>
+</div>
+</div>
+</div>
+
+<div id="shiftTimer">30</div>
+
+<div class="stats-bar">
+<div class="stat-group">
+<span class="stat-label">Score</span>
+<span id="scoreValue" class="stat-value">0</span>
+</div>
+</div>
+
+</div>
+
+<div class="main-area">
+<div class="window">
+<div class="window-titlebar">Inbox</div>
+<div class="inbox-container">
+<div class="inbox-inner">
+<div id="inboxStack"></div>
+</div>
+<div class="inbox-footer">
+<span id="inboxStatus">Use ← / → to work through your inbox.</span>
+<span>ESC: Pause · SPACE: Restart</span>
+</div>
+</div>
+</div>
+
+<div id="journalistRole">You are a TRAVEL JOURNALIST</div>
+
+<div class="control-bar">
+<div class="control-group">
+<span class="control-key">⇦</span>
+<span class="control-label">Reject</span>
+</div>
+<div class="control-group">
+<span class="control-key">⇨</span>
+<span class="control-label">Accept</span>
+</div>
+<div class="control-group">
+<span class="control-key">ESC</span>
+<span class="control-label">Pause</span>
+</div>
+</div>
+
+<div id="feedbackBar" class="feedback neutral">
+Get ready…
+</div>
+</div>
+</div>
+</div>
+
+<script>
+// =======================
+// CLASS EMAIL POOLS
+// (embed all your class arrays directly here)
+// =======================
+
+// 👉 PASTE your travelGood / travelBad / techGood / techBad / fashionGood / fashionBad / healthGood / healthBad / politicsGood / politicsBad
+// from your "emails" file right below this comment, for example:
+//
+// const travelGood = [
+//   ["Visit Portugal PR", "2026 Travel Trends: Portugal’s Most Booked Destinations"],
+//   ...
+// ];
+//
+// const travelBad = [
+//   ["CryptoWizard.ai", "Revolutionary Blockchain Tool for Dentists"],
+//   ...
+// ];
+//
+// ...and the same for tech, fashion, health, politics.
+
+// After you’ve pasted all 10 arrays, this master object will wire them together:
+
+/**********************************************
+ * MASTER EMAIL LIBRARY
+ * All journalist classes + all email pools
+ **********************************************/
+
+// --------------------------------------------
+// 1. TRAVEL EMAILS
+// --------------------------------------------
+
+// paste your travelGood and travelBad arrays here
+const travelGood = [
+  ["Visit Portugal PR", "2026 Travel Trends: Portugal’s Most Booked Destinations"],
+  ["Explore Japan Board", "Cherry Blossom Forecast and New Rail Pass Data"],
+  ["Iceland Tourism Council", "Glacier Tours Surge 28% — New Report"],
+  ["Hawaii Visitors Bureau", "Maui Reopens: Updated Guidelines for Travelers"],
+  ["AirFly Airlines", "New Direct Routes to Europe Launching Spring 2026"],
+  ["BookingSphere Research", "2026 Solo Travel Data: Who’s Going Where"],
+  ["Caribbean Stays PR", "New Luxury Eco-Resort Opening in Barbados"],
+  ["FlyRight Aviation", "Airfare Prices Expected to Drop This Summer"],
+  ["EuroRail PR Team", "High-Speed Routes Expanding Across Italy"],
+  ["Visit Scotland Media", "Whisky Country Sees Record Tourism in 2025"],
+  ["SkyWay Air", "Airline Introduces $59 Short-Haul Weekend Flights"],
+  ["Mountain Stay Collective", "New National Park Lodges Opening in 2026"],
+  ["SailCo Cruises", "Cruise Bookings Up 19%: 2026 Destinations Released"],
+  ["Visit Mexico", "New Safety Updates + Traveler Advisory"],
+  ["Nomad Research Group", "Digital Nomad Cities Index 2026"],
+  ["Visit Australia", "Great Barrier Reef Conservation Tourism Initiative"],
+  ["TrekWorld PR", "Top Hiking Trails Trending for Spring 2026"],
+  ["Mediterranean Hotels", "2026 Hotel Openings Across Spain & Greece"],
+  ["Canada Tourism Board", "Northern Lights Season Preview + Photo Access"],
+  ["WanderData Labs", "Why Gen Z Prefers Nature Trips in 2026"]
+];
+const travelBad = [
+  ["CryptoWizard.ai", "Revolutionary Blockchain Tool for Dentists"],
+  ["GrillMaster Pro", "America’s Best BBQ Apron — Now With Pockets"],
+  ["FinanceFeed Daily", "Why Mortgage Rates Might Spike Again"],
+  ["HealthyPet Digest", "Top 10 Supplements for Anxious Golden Retrievers"],
+  ["AutoMax Garage", "New Muffler That Improves Engine Growl"],
+  ["GlowBeauty PR", "Viral Skincare Serum Selling Out Nationwide"],
+  ["ByteTech Innovations", "AI Keyboard That Predicts Your Mood"],
+  ["Local Politics Desk", "Council Meeting Live Stream Tonight at 7"],
+  ["PlantParent Weekly", "Scientists Say Houseplants Can Reduce Stress"],
+  ["FitnessIQ PR", "The Workout Trend Taking Over TikTok"],
+  ["GamerZone eSports", "New Battle Royale Update Drops Friday"],
+  ["SweetTreats Bakery", "Our New Cookie Recipe Is Breaking the Internet"],
+  ["Real Estate Vision", "2026 Housing Market Predictions Released"],
+  ["The Fashion Loft", "Sneakers Inspired by Clouds Now Available"],
+  ["HealthFirst Network", "Doctors Warn About New Seasonal Allergy Spike"],
+  ["StartupBloom", "Seed Round Announced for Remote Work Tool"],
+  ["StarWatch Entertainment", "Exclusive Interview With Rising Pop Star"],
+  ["CyberSafe PR", "New Password Manager Launches Today"],
+  ["EcoClean Solutions", "Introducing Eco-Friendly Dishwasher Tablets"],
+  ["BookNerd Club", "Top 10 Romance Novels Coming in 2026"],
+  ["SmartHome Systems", "AI Doorbell That Identifies Visitors"],
+  ["SportsZone Media", "NBA Analyst Predicts Major Trade Shakeup"],
+  ["GardenLife Co.", "Grow Tomatoes Indoors With This New Lamp"],
+  ["WellnessDaily PR", "Meditation App Adds Sleep Stories"],
+  ["BigByte Tech", "Laptop Brand Announces RAM Upgrade Program"],
+  ["SnackLab Foods", "New Protein Bar Tastes Like Cheesecake"],
+  ["HR Insider", "Why Companies Are Rethinking 4-Day Workweeks"],
+  ["DataCore Analytics", "Report: SaaS Spending Expected to Fall"],
+  ["Spark Motors", "Electric Car Brand Teases New Model"],
+  ["FilmBeat News", "Movie Trailer Breaks Streaming Record"],
+  ["PetGear Co.", "Dog Jacket Designed for Rainy Winters"],
+  ["FinanceU Media", "Credit Card Trends for Early 2026"],
+  ["The Keto Kitchen", "Low-Carb Pumpkin Recipes Going Viral"],
+  ["MomLife Digest", "Parenting Hack Involves Frozen Grapes?"],
+  ["BizTools PR", "Our Calendar App Just Got AI Scheduling"],
+  ["EcoFuture News", "New Compost Bin That Eliminates Odors"],
+  ["FanTech Audio", "Headphones With Built-In Cooling Fans"],
+  ["WeddingWire PR", "2026 Bridal Dress Trends Revealed"],
+  ["MindSharp Coaching", "How to Stay Focused in a Distracted World"],
+  ["OfficeGuru", "Standing Desk Sales Hit Record High"],
+  ["SportsEdge", "College Football Preview for Next Season"],
+  ["CityPolitics Now", "Mayor Releases New Infrastructure Plan"],
+  ["MakeupStudio PR", "This Blush Went Viral Overnight"],
+  ["ByteCrate Tech", "USB-C Hubs Everyone Is Talking About"],
+  ["Brewster Coffee", "Limited Edition Winter Roast Available Now"],
+  ["CleanLiving PR", "Minimalist Home Decor Trends for 2026"],
+  ["CareerBoost", "Why Employees Quit After 90 Days"],
+  ["AutoPilot EV", "Charging Station Expansion Announced"],
+  ["The Toy Report", "Hot Toys Expected to Sell Out by December"],
+  ["SocialBuzz Agency", "Influencer Earns $500k With One Post"],
+  ["FitMom Media", "5 Postpartum Exercises Recommended by Trainers"],
+  ["CryptoMint PR", "Bitcoin Analyst Predicts Volatility"],
+  ["HomeGarden Weekly", "DIY Bird Feeder That Actually Works"],
+  ["CookSmart Co.", "Air Fryer Recipes You Haven’t Tried Yet"],
+  ["WorkFlow Tech", "New Project Management Tool Enters Market"],
+  ["MovieFrame PR", "Top 10 Underrated Films of the Decade"],
+  ["GlamPop Cosmetics", "Lip Gloss That Adjusts to Your Skin Tone"],
+  ["DoggoNation", "The Cutest Dog Breeds Ranked"],
+  ["EcoCharge Power", "Solar Battery That Fits in Your Backpack"],
+  ["CampusBeat", "Why College Majors Are Changing Fast"],
+  ["VideoCreator Hub", "Tips to Grow Your YouTube Channel"],
+  ["SmartFit Gear", "Running Shoes With Built-In GPS"],
+  ["WineTime PR", "Sommelier Reveals Best $10 Bottles"],
+  ["MoneyMatters Daily", "Side Hustles That Will Boom in 2026"],
+  ["SpaceWatch Journal", "NASA Announces New Rover Update"],
+  ["TeenStyle Today", "Y2K Fashion Trend Is Back Again"],
+  ["ChefCo PR", "Instant Pot Recipes for Lazy Nights"],
+  ["SleepWell Labs", "Mattress Study Reveals Shocking Findings"],
+  ["CloudTech PR", "New Server Tech Promises Faster Load Speeds"],
+  ["Local Eats Finder", "Best Sandwiches in the Midwest"],
+  ["BabyCare Co.", "New Organic Diaper Line Launches"],
+  ["ElectroPlus", "Cordless Vacuum With Laser Mapping"],
+  ["BudgetHome Media", "Cheap Kitchen Upgrades That Look Expensive"],
+  ["GreenPower EV", "Electric Vehicle Tax Credit Updates"],
+  ["TrueCrime Wire", "Mystery Documentary Drops Tonight"],
+  ["ArtHouse PR", "Gallery Show Features Emerging Sculptors"],
+  ["ClimateWatch News", "Storm Patterns Expected To Shift"],
+  ["RecruitPro HR", "Why Companies Need Soft Skills Training"],
+  ["SkinLovely PR", "New Retinol Serum Launches"],
+  ["CodeSpark Tech", "AI Debugging Tool for Developers"],
+  ["SnackJoy Foods", "Limited Edition Chips Taste Like Pizza"],
+  ["RadioWave Media", "Local Band Releases Debut Album"],
+  ["CivicBeat Politics", "Senate Hearing Scheduled for Monday"],
+  ["MommyPlanet", "Kids’ Lunch Ideas Parents Love"],
+  ["CyberGuard PR", "New Malware Targeting Small Businesses"],
+  ["DailySports PR", "Soccer Star Announces Retirement"],
+  ["MusicMix Weekly", "Festival Lineup Revealed for Summer"],
+  ["FutureOffice", "AI Presentation Tool Launches"],
+  ["GreenGardens Co.", "Indoor Plant Guide for Beginners"],
+  ["BizLead Media", "Networking Event Tips for Professionals"],
+  ["GlowHouse Beauty", "New Foundation Line for Winter"],
+  ["ReelMagic News", "TV Reboot Confirmed for 2026"],
+  ["MoneySense PR", "Tax Filing Shortcuts You Should Know"],
+  ["CarTech Insider", "Dashboard Upgrade Rolling Out This Week"],
+  ["WellnessWave", "Healthy Morning Routine Ideas"],
+  ["FitFuel Co.", "Energy Drink Brand Unveils New Flavor"],
+  ["MindBalance PR", "Therapists Recommend These Breathing Tips"],
+  ["TechSpark PR", "AI Company Raises $40M in Funding"]
+];
+
+// --------------------------------------------
+// 2. TECH EMAILS
+// --------------------------------------------
+
+// paste your techGood and techBad arrays here
+const techGood = [
+  ["ByteTech Research", "AI Adoption Report 2026: Usage Up 41%"],
+  ["GadgetWorks PR", "Hands-On Access: New Foldable Laptop Announcement"],
+  ["SecureNet Labs", "Cybersecurity Alert: New Phishing Pattern Detected"],
+  ["CloudBox Storage", "Exclusive: 2026 Cloud Pricing Index Released"],
+  ["NeuraAI Team", "AI Model Transparency Standards Report"],
+  ["AppPulse Analytics", "Most-Downloaded Apps of Q1 2026 Revealed"],
+  ["QuantumShift Computing", "Quantum Processor Demo Units Available"],
+  ["MetaLens PR", "AR Glasses Update: Wider Field of View + New Features"],
+  ["CircuitBoard Media", "GPU Shortages Easing — New Market Forecast"],
+  ["DataStream PR", "Study: Americans Delete 63% of Apps Within 2 Weeks"],
+  ["VoltCharge Tech", "World’s Fastest Charging Dock Launching Tuesday"],
+  ["CodeSphere Dev Team", "New Open Source Framework Hits 1M Installs"],
+  ["BitRoute Mobility", "Electric Micromobility Report: Usage Doubles"],
+  ["NanoChip PR", "New Chipset Uses 27% Less Power — Specs Inside"],
+  ["SecureWatch Cyber", "Ransomware Trends 2026: Who’s Most at Risk"],
+  ["StreamWorks Media", "Smart TV Usage Study Across Age Groups"],
+  ["StackSync Systems", "Productivity App Adds AI Summaries"],
+  ["DroneTrack PR", "Drone Delivery Pilot Expanding to 4 New Cities"],
+  ["CloudArchitect PR", "Data Center Energy Efficiency Ratings Released"],
+  ["PixelForge Labs", "Dev Preview: 2026 Gaming Engine Features"]
+];
+const techBad = [
+  ["HealthyPet Digest", "Top 10 Supplements for Senior Dogs"],
+  ["MomLife Weekly", "Why Toddlers Refuse Dinner (Again)"],
+  ["ShoeLux PR", "Sneakers That Change Color in the Sun"],
+  ["Visit Italy PR", "Most Romantic Destinations for 2026"],
+  ["SmoothSkin Co.", "Viral Moisturizer That Sells Out Daily"],
+  ["AutoShop Garage", "New Muffler That Improves Engine Growl"],
+  ["GlamPop Cosmetics", "Winter Lip Gloss Line Now Available"],
+  ["SportsNation Media", "Football Predictions for the Weekend"],
+  ["FlavorBurst Snacks", "Limited Edition Chips Taste Like Cinnamon Toast"],
+  ["FinanceDaily", "Mortgage Rate Trends to Watch"],
+  ["FitWave PR", "New Treadmill With Built-In Yoga Mode"],
+  ["TravelCo PR", "Why Iceland Is the Best Winter Trip"],
+  ["ReelBuzz TV", "Cult Classic Film Getting a Reboot"],
+  ["HomeChef Kits", "3 New Meal Kits Launching This Month"],
+  ["EcoGreen Living", "Compost Bin That Eliminates Smells"],
+  ["BookTalk PR", "Romance Novels Dominating Bestseller Charts"],
+  ["GardenLife Co.", "Beginner-Friendly Indoor Plants"],
+  ["SweetTreats Bakery", "Introducing Our Raspberry Brownie"],
+  ["FitnessCruise", "Workout Cruise Sets Sail in June"],
+  ["CityPolitics Now", "Mayor Announces New Traffic Plan"],
+  ["SmartHome Decor", "Minimalist Bedroom Trends for 2026"],
+  ["WineTime Media", "Sommelier Picks the Best $12 Wines"],
+  ["WellnessWave PR", "Morning Routines That Boost Happiness"],
+  ["Local Eats Finder", "Best Tacos in the Southwest"],
+  ["KetoLife Media", "7 Low-Carb Recipes for Busy Nights"],
+  ["SnackJoy PR", "Energy Bar Inspired by Birthday Cake"],
+  ["ArtHouse Guild", "New Gallery Opening Downtown"],
+  ["PetGear Co.", "Dog Raincoat With Reflective Trim"],
+  ["TravelBeat", "Caribbean Cruises You Can Book Cheap"],
+  ["MommyPlanet", "Toy Storage Hacks Parents Swear By"],
+  ["TrueCrime Wire", "Cold Case Documentary Premieres Tonight"],
+  ["BudgetHome Media", "Stylish Lamps Under $25"],
+  ["ChefCo PR", "Quick Sheet-Pan Dinners for Winter"],
+  ["GlowHouse Beauty", "Foundation That Adapts to Your Skin"],
+  ["CareerBoost", "Why Job-Hopping Is Rising Again"],
+  ["CampusBeat", "College Majors With Highest Starting Salaries"],
+  ["SportsZone Media", "NBA Star Suffers Late-Season Injury"],
+  ["GardenFresh Co.", "The Easiest Herbs to Grow Indoors"],
+  ["MindBalance PR", "Therapist-Approved Stress Tips"],
+  ["AutoPlus EV", "Charging Stations Expanding Nationwide"],
+  ["WeddingTrends Daily", "Pastel Wedding Themes Are Back"],
+  ["FilmFrame Media", "Behind-The-Scenes Photos From New Sci-Fi"],
+  ["BabyCare Co.", "Organic Baby Shampoo Line Launches"],
+  ["EcoCharge Power", "Solar Lantern for Camping Trips"],
+  ["SnackLab Foods", "Chocolate Bar With Protein Added"],
+  ["CityLife Mag", "Why Urban Farming Is Booming"],
+  ["FitnessIQ PR", "New HIIT Workout Taking Over TikTok"],
+  ["BeautySpot PR", "Mascara That Doesn’t Smudge"],
+  ["WineHQ Media", "Best Red Wines Under $20"],
+  ["DailySports PR", "Soccer Team Makes Surprising Trade"],
+  ["GardenGlow PR", "Low-Light Plants That Won’t Die"],
+  ["Chef’s Knife Co.", "Knife Set With Ergonomic Handle"],
+  ["BookNerd Club", "Top Fantasy Books for Spring"],
+  ["SnackCo PR", "Popcorn Brand Launches Jalapeño Lime Flavor"],
+  ["RadioWave Media", "Local Band Releases Music Video"],
+  ["FashionWeek Journal", "Denim Trends Dominating 2026"],
+  ["EcoFuture News", "Storm Frequency Expected To Increase"],
+  ["RecruitPro HR", "Why Employees Want Remote Options"],
+  ["CampusNews PR", "Study Habits of Gen Z"],
+  ["MusicMix Weekly", "Indie Artist Drops Surprise EP"],
+  ["CloudyKitchen", "Top Air Fryer Desserts"],
+  ["AutoPilot EV", "New Charging Adapter Ships Worldwide"],
+  ["GreenGarden Co.", "Hard-To-Kill Houseplants"],
+  ["BizLead Media", "Networking Mistakes to Avoid"],
+  ["FaceGlow Co.", "Vitamin C Serum Launching Soon"],
+  ["SpaceWatch Journal", "Telescope Spots Rare Event"],
+  ["TrueStyle PR", "Leather Jackets Trending Again"],
+  ["LocalPolitics Desk", "Town Budget Meeting Tonight"],
+  ["DailyHealth Digest", "The Best Magnesium Supplements"],
+  ["MakeupStudio PR", "This Blush Went Viral Overnight"],
+  ["ElectroPlus", "Cordless Vacuum With Laser Mapping"],
+  ["CityEvents PR", "Winter Festival Dates Announced"],
+  ["MoneySense PR", "Tips for Filing Taxes Early"],
+  ["DoggoNation", "Cutest Puppy Photo Contest"],
+  ["Real Estate Vision", "Housing Prices Could Drop Soon"],
+  ["CraftHouse Co.", "DIY Candle Kits Selling Fast"],
+  ["DigitalMom Media", "Apps Kids Are Obsessed With"],
+  ["TasteKitchen News", "Best Slow Cooker Meals"],
+  ["SmartFit Gear", "Running Shoes With Built-In GPS"],
+  ["CarTech Insider", "Dashboard Screens Are Getting Bigger"],
+  ["GreenPower EV", "Battery Tech Improving Gradually"],
+  ["MomTrends Media", "Back-To-School Shopping Guide"],
+  ["CyberGuard PR", "New Malware Targets Schools"],
+  ["Brewster Coffee", "Holiday Drinks Return Early"],
+  ["OfficeGuru PR", "Standing Desk Muscle Tips"],
+  ["GlamRush Beauty", "Nail Polish That Dries in 30 Seconds"],
+  ["ReelMagic News", "Comedy Series Renewed for Season 5"],
+  ["MindSharp Coaching", "How To Avoid Burnout"],
+  ["MoneyMatters Daily", "Side Hustles That Are Growing"],
+  ["AutoSpark Garage", "Winter Tire Guide Released"],
+  ["FutureOffice PR", "AI Presentation Tool Adds Templates"],
+  ["GlowBeauty PR", "Hydrating Toner Launch"],
+  ["GardenPatch Co.", "Plant Fertilizer for Beginners"],
+  ["SportsEdge Media", "MLB Preview for Upcoming Season"],
+  ["CloudTech PR", "Server Cooling Tech Announced"],
+  ["SnackWave", "Granola Bar Inspired by Pie"],
+  ["MusicBuzz Media", "Concert Tickets Going Fast"],
+  ["FilmBeat News", "Trailer for Thriller Drops Tonight"]
+];
+
+// --------------------------------------------
+// 3. FASHION EMAILS
+// --------------------------------------------
+
+// paste your fashionGood and fashionBad arrays here
+const fashionGood = [
+  ["StyleHouse PR", "2026 Fashion Trends Report: Soft Utility Takes Over"],
+  ["GlamRunway Media", "Exclusive: Designers to Watch Ahead of Fashion Week"],
+  ["Chroma Collective", "Sustainable Denim Line Launching This Spring"],
+  ["LuxeBeauty Group", "Celebrity Makeup Artist Reveals New Collab"],
+  ["The Fabric Lab", "Study: Why Linen Is Surging Across Gen Z"],
+  ["RunwayRadar", "Sneak Peek: Fall 2026 Color Palette Forecast"],
+  ["UrbanForm PR", "Streetwear Brand Unveils Tech-Integrated Jacket"],
+  ["EcoWear Studio", "Recycled Polyester: New Manufacturing Breakthrough"],
+  ["ModeParis Press", "Paris Week: Designer Schedules Released"],
+  ["SilkRoad Atelier", "Handcrafted Silk Collection Launching in April"],
+  ["BeautyPulse PR", "Skincare Brand Launches SPF Stick for Darker Tones"],
+  ["TrendIndex Labs", "Data: 48% of Shoppers Prefer Vintage Resale"],
+  ["Glow Atelier", "Makeup Brand Announces Inclusive Shade Expansion"],
+  ["Minimal Form PR", "Monochrome Capsule Wardrobe Guide for 2026"],
+  ["The Footwear Edit", "Sneaker Brand Releases Biodegradable Sole"],
+  ["FashionGrid Research", "Study: Consumers Want Longer-Lasting Clothing"],
+  ["VogueLine PR", "Exclusive Look at Designer’s 2026 Resort Collection"],
+  ["HairRevive PR", "Heatless Curl Trends Surge on TikTok"],
+  ["ScentLab Studios", "Gender-Neutral Fragrances Trending This Season"],
+  ["PressRoom Beauty", "Award-Winning Serum Adds New Vitamin Blend"]
+];
+const fashionBad = [
+  ["TechForge Media", "AI Tools That Improve Software Testing"],
+  ["Real Estate Vision", "Housing Prices Expected to Shift in 2026"],
+  ["FitWave PR", "New Rowing Machine With Built-In Coaching"],
+  ["Visit Japan Board", "Cherry Blossom Forecast for Travelers"],
+  ["HealthyPet Digest", "How to Calm an Anxious Puppy"],
+  ["AutoMax Garage", "Engine Upgrade Kit Launching Soon"],
+  ["FinanceFeed Daily", "Will Credit Card Fees Change This Year?"],
+  ["GamerZone eSports", "Battle Royale Patch Notes Released"],
+  ["CloudBox Storage", "Cloud Backup Tips for Small Businesses"],
+  ["FlavorBurst Snacks", "Limited Edition Nacho Cinnamon Chips"],
+  ["MomLife Weekly", "Toddler Bedtime Hacks That ‘Actually Work’"],
+  ["TravelCo PR", "Cheapest Cities to Visit in Spring"],
+  ["CyberSafe PR", "Password Manager Updates Security Protocols"],
+  ["GardenLife Co.", "Indoor Plants That Thrive in Shade"],
+  ["Brewster Coffee", "Seasonal Roast: Cinnamon Maple"],
+  ["LocalPolitics Desk", "Town Hall Meeting Recap"],
+  ["SportsNation Media", "Soccer Transfer Rumors Heating Up"],
+  ["GlowHouse Beauty", "Morning Routines That Boost Hydration"],
+  ["OfficeGuru PR", "Standing Desk Mistakes to Avoid"],
+  ["KetoLife Media", "Low-Carb Pasta Recipes Trending"],
+  ["WineTime PR", "Sommelier Picks: Best $8 Bottles"],
+  ["EcoGreen Living", "How To Reduce Food Waste at Home"],
+  ["HomeChef Kits", "Three New Meal Kits Launching"],
+  ["BabyCare Co.", "Organic Baby Shampoo Launch"],
+  ["FilmBeat News", "Indie Horror Film Trailer Drops"],
+  ["SnackLab Foods", "Protein Cookie That Tastes Like Cake"],
+  ["BookTalk PR", "Top Romance Books Coming Next Month"],
+  ["GardenFresh Co.", "Start a Herb Garden Indoors"],
+  ["AutoSpark Garage", "Winter Tire Guide Updated"],
+  ["CareerBoost Media", "Why Workers Are Quitting Faster"],
+  ["MindSharp Coaching", "How To Stay Motivated During Winter"],
+  ["ArtHouse Guild", "Local Gallery Show Debuts Friday"],
+  ["CityPolitics Now", "Infrastructure Plan Sent to Council"],
+  ["TravelBeat PR", "Mediterranean Cruise Prices Drop"],
+  ["SmartFit Gear", "Running Shoes With Impact Sensors"],
+  ["WellnessWave PR", "3 Mental Health Tips for Busy People"],
+  ["SnackJoy Foods", "New Granola Bar That Tastes Like Pie"],
+  ["EcoCharge Power", "Portable Solar Generator Launch"],
+  ["ChefCo PR", "Instant Pot Stew Recipes"],
+  ["FutureOffice Tech", "AI Slides Tool Adds Templates"],
+  ["TrueCrime Wire", "Cold Case Series Renewed"],
+  ["MommyPlanet", "Lunch Ideas Kids Will Actually Eat"],
+  ["CyberGuard PR", "Malware Alert for Small Businesses"],
+  ["CampusBeat", "Why Students Are Changing Majors"],
+  ["BudgetHome Media", "Small Decor Items That Look Expensive"],
+  ["AutoPilot EV", "Fast Charger Expands Nationwide"],
+  ["GardenGlow PR", "Low-Light Indoor Plants Guide"],
+  ["FilmFrame Media", "Director Shares Behind-The-Scenes Photos"],
+  ["TasteKitchen News", "One-Pan Chicken Recipes"],
+  ["DoggoNation", "Cutest Dog Breeds Ranked"],
+  ["CloudTech PR", "New Server Cooling Tech Announced"],
+  ["MusicBuzz Media", "Rock Band Announces Tour"],
+  ["PetGear Co.", "Dog Harness for Adventurous Hikes"],
+  ["FinanceDaily", "Buy Now Pay Later Spending Report"],
+  ["ScentWave PR", "Candle Scents Inspired by Cities"],
+  ["BookNerd Club", "Fantasy Series Everyone’s Talking About"],
+  ["Chef’s Knife Co.", "Knife Set With Magnetized Stand"],
+  ["GreenPower EV", "EV Battery Ranges Improving"],
+  ["RealEstate Wire", "2026 Rental Trends Report"],
+  ["MovieFrame PR", "Top 10 Underrated Comedies"],
+  ["SmartHome Decor", "Minimalist Desk Inspiration"],
+  ["MusicMix Weekly", "New Pop Single Drops Friday"],
+  ["ClimateWatch News", "Storm Predictions Updated"],
+  ["RecruitPro HR", "Remote Hiring Mistakes To Avoid"],
+  ["GlowBeauty PR", "Moisturizer With Vitamin E Launches"],
+  ["SnackWave Co.", "Birthday Cake Popcorn Is Back"],
+  ["SportsEdge Media", "Basketball Playoff Preview"],
+  ["EcoFuture News", "Scientists Observe Coral Changes"],
+  ["Local Eats Finder", "Best Dumplings in the Midwest"],
+  ["DailyHealth Digest", "Magnesium Supplements Ranked"],
+  ["CampusNews PR", "Dorm Essentials Students Swear By"],
+  ["AutoPlus EV", "Charging Adapter Update Ships"],
+  ["WineHQ Media", "Affordable Sparkling Wines"],
+  ["TrueStyle PR", "Y2K Accessories Return Again"],
+  ["FilmMagic News", "Sitcom Reboot Confirmed"],
+  ["SnackTreats PR", "New Pancake-Flavored Cereal"],
+  ["CareerRank Media", "Highest-Paying Entry Jobs"],
+  ["GardenPatch Co.", "Beginner-Friendly Fertilizer"],
+  ["ReelMagic News", "TV Thriller Renewed for Season 3"],
+  ["TasteLab Foods", "Sheet-Pan Dinner Ideas"],
+  ["RadioWave Media", "Indie Band’s New Album Planned"],
+  ["MoneySense Daily", "Tax Tips for Freelancers"],
+  ["OfficeWork PR", "Keyboard Shortcuts to Know"],
+  ["ClimateEdge PR", "Warm Winter Expected Again"],
+  ["BeautySpot PR", "Lip Balm With Coconut Oil"],
+  ["GreenGarden Co.", "Hard-To-Kill Houseplants"],
+  ["BizLead Media", "Networking Tips for Introverts"],
+  ["FaceGlow Co.", "New Vitamin C Serum Launch"],
+  ["MusicStream Press", "Playlist Trends for 2026"],
+  ["ArtPulse Daily", "Sculptor Debuts New Installation"],
+  ["BabySteps Co.", "Stroller Brand Releases Upgrade"],
+  ["SnackCo PR", "Churro Chips Debut Nationwide"],
+  ["SportsDaily PR", "Baseball Season Predictions"],
+  ["FutureOffice PR", "AI Tool Streamlines Meetings"],
+  ["GlowHouse Beauty", "Hydrating Toner Restock"],
+  ["AutoSpark PR", "Hybrid Engine Tech Updates"],
+  ["CampusBeat PR", "Study Shows Students Prefer Notes Apps"],
+  ["GreenLeaf Foods", "Plant-Based Burger Relaunch"],
+  ["CampusVibe Media", "New Dorm Essentials Guide"],
+  ["TechTrend PR", "Top Apps for Productivity"],
+  ["GardenLife PR", "Soil Tips for Spring Planting"],
+  ["CityLife Mag", "Best Coffee Shops Opening Soon"],
+  ["ChefCo Media", "Air Fryer Breakfast Recipes"],
+  ["MusicHQ PR", "DJ Releases Summer Mix"]
+];
+
+// --------------------------------------------
+// 4. HEALTH EMAILS
+// --------------------------------------------
+
+// paste your healthGood and healthBad arrays here
+const healthGood = [
+  ["HealthData Insights", "New Study: Sleep Deprivation Linked to Higher Heart Risk"],
+  ["Wellness Institute PR", "CDC Releases Updated Flu Forecast for 2026"],
+  ["MindCare Labs", "Survey: Anxiety Rates Rising Among Remote Workers"],
+  ["Nutrition Science Review", "Research Shows Fiber Intake Improves Longevity"],
+  ["Harbor Medical Center", "Doctors Report Surprising Trend in ER Visits"],
+  ["FitWell Research", "2026 Fitness Participation Report Released"],
+  ["CleanAir Health Coalition", "Air Quality Study: Cities With Highest Risk"],
+  ["BioNutra Press", "Vitamin D Study Reveals New Optimal Range"],
+  ["GenomicHealth PR", "Breakthrough Gene Test for Early Cancer Detection"],
+  ["HeartStrong Foundation", "Cardiologists Share Updated Heart Diet Guidelines"],
+  ["MedTech Solutions", "Wearable Device Tracks Blood Pressure Continuously"],
+  ["NutritionHub PR", "New Study: Plant-Based Diet Reduces Inflammation"],
+  ["WellLife Behavioral", "Mental Health Spending Hits All-Time High"],
+  ["HospitalData.org", "Hospital Wait Times Report Across U.S."],
+  ["DermalHealth Labs", "Updated Research on Eczema Treatments"],
+  ["BrainWave Center", "Neuroscientists Release Cognitive Aging Study"],
+  ["BlueCross PR", "Insurance Data: Most Common Claims of 2025"],
+  ["HealthyPlanet Research", "Climate Change Impact on Seasonal Allergies"],
+  ["FitTrack Medical", "Wearable Fitness Device Gains FDA Clearance"],
+  ["MindfulLiving PR", "Study: Meditation Improves Sleep Quality"]
+];
+const healthBad = [
+  ["TechForge Media", "AI Tools Changing Software Development"],
+  ["TravelBeat PR", "The Cheapest Beach Destinations for 2026"],
+  ["GlamRunway Media", "Sneakers Taking Over Paris Fashion Week"],
+  ["AutoMax Garage", "New Exhaust System Improves Engine Sound"],
+  ["SnackJoy Foods", "Birthday Cake Granola Bar Launches"],
+  ["SportsNation Media", "Baseball Playoff Predictions"],
+  ["LocalPolitics Desk", "Town Council Approves New Stoplight"],
+  ["GardenLife Co.", "Best Indoor Plants for Low Light"],
+  ["MomLife Weekly", "Bedtime Tricks All Parents Should Know"],
+  ["Brewster Coffee", "Holiday Drinks Return Next Week"],
+  ["FilmBeat News", "Cult Classic Film Getting a Reboot"],
+  ["EcoCharge Power", "Portable Solar Generator Announcement"],
+  ["FinanceDaily", "Credit Score Trends for 2026"],
+  ["ChefCo PR", "Sheet-Pan Dinners for Lazy Nights"],
+  ["CityEvents PR", "Winter Festival Kicks Off Saturday"],
+  ["BabyCare Co.", "New Organic Baby Soap Line Launches"],
+  ["MusicBuzz Media", "Indie Band Drops Surprise Single"],
+  ["CampusBeat", "Which Majors Earn the Most?"],
+  ["WineHQ Media", "Sommelier Picks $10 White Wines"],
+  ["Real Estate Vision", "Housing Prices Expected To Rise"],
+  ["GlowBeauty PR", "New Vitamin C Serum Launches"],
+  ["GamerZone eSports", "Patch Notes for Battle Royale Update"],
+  ["SnackLab Foods", "Limited Edition Pretzel Flavor"],
+  ["EcoFuture News", "Storm Predictions for February"],
+  ["CareerBoost Media", "Common Interview Mistakes"],
+  ["TasteKitchen News", "Instant Pot Soup Recipes"],
+  ["TrueCrime Wire", "New Podcast Examines Cold Cases"],
+  ["GardenGlow PR", "How To Grow Basil Indoors"],
+  ["OfficeGuru PR", "Standing Desk Setup Mistakes"],
+  ["GlowHouse Beauty", "Blush That Matches Your Skin"],
+  ["MommyPlanet", "Back-To-School Lunch Tips"],
+  ["FilmFrame Media", "Behind-the-Scenes Photos Released"],
+  ["FitWave PR", "New Rowing Machine With Bluetooth"],
+  ["GreenPower EV", "Charging Network Adds New Locations"],
+  ["BookTalk PR", "Top Thriller Novels This Spring"],
+  ["GlamPop Cosmetics", "Lip Gloss Line Returns"],
+  ["SportsEdge Media", "Soccer Match Preview for Friday"],
+  ["RecruitPro HR", "Remote Work Trends for 2026"],
+  ["SnackWave Co.", "Peanut Butter Popcorn Drops Monday"],
+  ["AutoPlus EV", "Hybrid Tech Improvements Arriving Soon"],
+  ["CityLife Mag", "New Restaurants Opening Downtown"],
+  ["MusicMix Weekly", "Festival Lineup Announced"],
+  ["CampusNews PR", "Students Prefer Digital Textbooks"],
+  ["EcoGreen Living", "Composting Tips for Small Apartments"],
+  ["TasteLab Foods", "Sheet-Pan Breakfast Ideas"],
+  ["RadioWave Media", "Local Band Releases Album"],
+  ["FinanceU Media", "Why Budgeting Apps Are Growing"],
+  ["HealthPet Digest", "How To Calm an Anxious Cat"],
+  ["SmartHome Decor", "Minimalist Living Room Inspiration"],
+  ["GardenPatch Co.", "New Fertilizer Blend for Beginners"],
+  ["CyberGuard PR", "Rising Malware Targets Overlooked Devices"],
+  ["TravelCo PR", "Train Routes Expanding in Europe"],
+  ["FilmMagic News", "TV Drama Series Renewed"],
+  ["DoggoNation", "Cutest Puppy Rankings Released"],
+  ["BudgetHome Media", "Affordable Kitchen Makeovers"],
+  ["FutureOffice PR", "AI Tool Helps Summarize Meetings"],
+  ["WineTime Media", "New Zealand Wines Under $12"],
+  ["GlowSkin Co.", "Hydrating Toner Takes Off"],
+  ["CityPolitics Now", "Mayor Announces Recycling Initiative"],
+  ["DigitalMom Media", "Kids’ Favorite Learning Apps"],
+  ["TasteHouse PR", "Easy Air Fryer Party Meals"],
+  ["SportsDaily PR", "NBA Team Trades Shock Fans"],
+  ["BabySteps Co.", "Stroller Design Updates Announced"],
+  ["EcoGarden Co.", "Grow Tomatoes Indoors"],
+  ["CareerRank Media", "Top Jobs Graduates Want"],
+  ["AutoPilot EV", "Charging Adapter Gains Popularity"],
+  ["FilmFrame Press", "Documentary Trailer Drops"],
+  ["SnackTreats PR", "New Cinnamon Cereal Flavor"],
+  ["MoneySense Daily", "Best Savings Accounts This Year"],
+  ["MakeupStudio PR", "Mascara With 24-Hour Hold"],
+  ["ClimateWatch News", "Winter Expected To Be Mild"],
+  ["GreenGarden Co.", "Indoor Plant Guide Released"],
+  ["BizLead Media", "Networking Tips for Introverts"],
+  ["TasteKitchen Daily", "Cozy Slow Cooker Meals"],
+  ["MusicStream Press", "Artist Announces New EP"],
+  ["GardenLife PR", "Beginner Gardening Mistakes"],
+  ["CampusVibe Media", "Dorm Decor Trends"],
+  ["SmartFit Gear", "Athletic Shoes With Sensors"],
+  ["CyberSafe Insights", "New Email Scam Targets Teachers"],
+  ["RadioWave PR", "Local Concert Announced"],
+  ["AutoPro Garage", "Oil Change Myths Debunked"],
+  ["BeautySpot PR", "Moisturizer With Shea Butter"],
+  ["MomTrends Media", "Toy Trends for 2026"],
+  ["WorkFlow Tech", "Productivity Tool Adds AI"],
+  ["ChefCo Media", "New Dinner Recipes for Busy Nights"],
+  ["MusicHQ PR", "DJ Releases Summer Playlist"],
+  ["EcoCharge Labs", "Solar Battery Portable Charger"],
+  ["FinanceBeat PR", "Crypto Predictions for Early 2026"],
+  ["SnackJoy Press", "Pretzel Sticks With Honey Glaze"],
+  ["GardenGlow Media", "New Indoor Plant Pots"],
+  ["TrueStyle PR", "Denim Trends for Winter"],
+  ["CityEvents Media", "Food Festival Dates Announced"],
+  ["CampusBeat News", "Study Shows Students Love Notion"],
+  ["TasteLabs PR", "Best Cast Iron Pan Recipes"],
+  ["AutoSpark PR", "Engine Efficiency Upgrades"],
+  ["FilmBuzz TV", "Sitcom Sequel Confirmed"],
+  ["DoggoDaily PR", "Pet Toy Launching This Fall"],
+  ["GreenLeaf Foods", "Plant-Based Nuggets Relaunch"],
+  ["MusicBuzz PR", "Singer Announces Spring Tour"]
+];
+
+// --------------------------------------------
+// 5. POLITICS EMAILS
+// --------------------------------------------
+
+// paste your politicsGood and politicsBad arrays here
+const politicsGood = [
+  ["CapitolData Research", "New Poll: Voter Priorities Shift Ahead of 2026 Midterms"],
+  ["StatePolicy Review", "Report: How State Budgets Changed After 2025 Tax Reform"],
+  ["GovWatch PR", "Congressional Committee Releases AI Regulation Framework"],
+  ["EconImpact Center", "Study: Minimum Wage Increase Effects by State"],
+  ["CivicPulse Analytics", "Survey: Trust in Local News Hits Record Low"],
+  ["JusticeReform Institute", "Report Shows Decline in Non-Violent Offenses"],
+  ["PublicHealth Council", "New Federal Rules on School Lunch Programs"],
+  ["InfrastructureNow PR", "Transportation Bill Breakdown: Key Projects & Costs"],
+  ["ElectionStat Lab", "Data: Early Voting Participation Up 18%"],
+  ["GovTech Briefing", "States Testing Digital ID Programs in 2026"],
+  ["EducationPolicy Group", "Teacher Shortage Trends Across Regions"],
+  ["EnergyRegulation Board", "New Guidelines for Solar Incentive Rebates"],
+  ["FactLine Policy PR", "Report: Where Federal Grant Dollars Are Going"],
+  ["BorderWatch Institute", "Updated Migration Data Released"],
+  ["CivicEngage Network", "Survey: 57% of Americans Want Ranked-Choice Voting"],
+  ["CommitteePress Office", "Senate Schedules Hearing on Healthcare Pricing"],
+  ["UrbanPolicy Review", "Housing Affordability Index Released"],
+  ["NationalSecurity Brief", "Cyber Defense Report: Threat Levels Rising"],
+  ["JusticeData Labs", "Police Funding Distribution Study Published"],
+  ["RegulatoryWatch PR", "FDA Announces New Food Label Requirements"]
+];
+const politicsBad = [
+  ["GlamRunway Media", "Sneakers Taking Over Spring Fashion Week"],
+  ["TravelBeat PR", "The 10 Cheapest Beach Trips This Summer"],
+  ["AutoMax Garage", "New Exhaust Kit Makes Cars Growl"],
+  ["FitWave PR", "Rowing Machine With Built-In Coaching Released"],
+  ["MomLife Weekly", "Why Toddlers Throw Food (According to Parents)"],
+  ["SnackJoy Foods", "Birthday Cake Popcorn Launches"],
+  ["FilmBeat News", "Cult Classic Horror Getting a Remake"],
+  ["GardenLife Co.", "Indoor Plants That Are Impossible to Kill"],
+  ["FinanceDaily", "Why Credit Scores Might Shift in 2026"],
+  ["CyberGuard PR", "Heads-Up: New Malware Targets Windows Users"],
+  ["MusicBuzz Media", "Indie Band Drops Surprise EP"],
+  ["SweetTreats Bakery", "New Brownie Flavor Going Viral"],
+  ["HomeChef Kits", "3 Easy Weeknight Dinners"],
+  ["Brewster Coffee", "Holiday Drinks Return Early"],
+  ["CampusBeat", "Top College Majors This Year"],
+  ["Local Eats Finder", "Best Sandwich Spots in the City"],
+  ["WineHQ Media", "Sommelier Picks Affordable Reds"],
+  ["EcoGarden Co.", "Grow Basil Indoors With This Lamp"],
+  ["GlowBeauty PR", "Vitamin C Serum Adds New Formula"],
+  ["BabyCare Co.", "Organic Shampoo for Babies Launches"],
+  ["SportsNation Media", "NBA Trade Rumors Heating Up"],
+  ["CareerBoost Media", "Employees Want More Flexibility"],
+  ["TasteKitchen News", "Instant Pot Breakfast Recipes"],
+  ["BudgetHome Media", "Stylish Lamps Under $20"],
+  ["MusicMix Weekly", "New Dance Single Drops Friday"],
+  ["CityEvents PR", "Street Festival Dates Announced"],
+  ["TrueCrime Wire", "New Docuseries Drops Tonight"],
+  ["GardenGlow PR", "Low-Light Plant Guide Released"],
+  ["OfficeGuru PR", "Standing Desk Setup Mistakes"],
+  ["SmartHome Decor", "Minimalist Kitchen Inspiration"],
+  ["SnackLab Foods", "Pretzel Flavor Returns This Month"],
+  ["CampusNews PR", "Students Prefer Chat-Based Study Groups"],
+  ["TasteHouse PR", "Sheet-Pan Dinner Ideas"],
+  ["FilmFrame Media", "Director Shares Behind-the-Scenes Stills"],
+  ["GreenPower EV", "New Charging Stations Added"],
+  ["BeautySpot PR", "Mascara That Lasts All Day"],
+  ["EcoFuture News", "Scientists Predict Milder Winter"],
+  ["AutoPlus EV", "Hybrid Powertrain Improvements"],
+  ["DoggoNation", "Cutest Puppy Contest Now Open"],
+  ["MusicStream Press", "Singer Announces Nationwide Tour"],
+  ["DigitalMom Media", "Apps Kids Are Obsessed With"],
+  ["FinanceHub Daily", "Side Hustles Expected To Surge"],
+  ["RadioWave Media", "Local Band Releases Music Video"],
+  ["GardenPatch Co.", "Beginner-Friendly Fertilizer Guide"],
+  ["TasteKitchen Daily", "Slow Cooker Stew Recipes"],
+  ["SmartFit Gear", "Running Shoes With Sensors Built In"],
+  ["CareerRank Media", "Top Entry-Level Jobs in 2026"],
+  ["GlowSkin Co.", "Hydrating Toner Goes Viral"],
+  ["CivicLife Magazine", "Best Dog Parks in the Midwest"],
+  ["SnackWave Co.", "New Cereal That Tastes Like Pancakes"],
+  ["FilmMagic News", "Comedy Series Renewed Again"],
+  ["MusicHQ PR", "DJ Drops Summer Playlist"],
+  ["AutoSpark Garage", "Winter Tire Recommendations"],
+  ["EcoClean Solutions", "Odor-Free Compost Bin Launch"],
+  ["TasteLab Foods", "Breakfast Recipes for Busy Mornings"],
+  ["CampusBeat News", "Trend: Students Choosing Shorter Degrees"],
+  ["MommyPlanet", "Lunch Ideas Kids Will Actually Eat"],
+  ["RadioWave PR", "Local Concert Announced"],
+  ["DigitalHome PR", "Smart Lamp That Changes Color"],
+  ["ChefCo PR", "Easy Air Fryer Meal Ideas"],
+  ["FitnessDaily PR", "New Spin Bike Mode Announced"],
+  ["EcoCharge Labs", "Solar Battery Pack Launch"],
+  ["WineTime Media", "Affordable Sparkling Wines"],
+  ["GardenLife PR", "How To Grow Rosemary Indoors"],
+  ["CryptoMint PR", "Bitcoin Predictions for Q2"],
+  ["SportsDaily PR", "MLB Season Preview"],
+  ["BeautyStudio PR", "New Lip Tint Shade Drops"],
+  ["TasteKitchen Press", "Air Fryer Snacks for Game Night"],
+  ["LocalPolitics Desk", "City Council Approves New Bike Lane"],
+  ["TravelCo PR", "Why Iceland Is Trending for Spring Travel"],
+  ["ClimateWatch News", "Storm Patterns Expected to Shift"],
+  ["BabySteps Co.", "New Stroller Attachment Released"],
+  ["SnackTreats PR", "Cinnamon Candy Is Back"],
+  ["CampusVibe Media", "Dorm Decor Trends Rising"],
+  ["AutoPilot EV", "Charging Adapter Gains Traction"],
+  ["MusicBuzz PR", "Singer Releases Acoustic Version"],
+  ["TasteLabs PR", "Best Cast Iron Pan Meals"],
+  ["OfficeWork PR", "Keyboard Shortcuts Everyone Should Know"],
+  ["FilmBuzz TV", "Drama Series Drops New Trailer"],
+  ["GreenGarden Co.", "Hard-To-Kill Houseplants"],
+  ["BizLead Media", "Networking Tips for Introverts"],
+  ["TasteKitchen Media", "Cozy Soups for Winter"],
+  ["MusicHQ Press", "Artist Announces New EP"],
+  ["GardenPatch PR", "Beginner Gardening Tips"],
+  ["SmartHome PR", "Home Robot Vacuum Update"],
+  ["DailyHealth Digest", "Magnesium Supplements Ranked"],
+  ["CityLife Magazine", "Best New Coffee Shops"],
+  ["FinanceSense PR", "New Study: Savings Apps Growing"],
+  ["MomTrends Media", "Back-to-School Trends"],
+  ["WorkFlow Tech", "AI Project Management Improvements"],
+  ["ChefCo Media", "Three Healthy-ish Dinner Ideas"],
+  ["ReelMagic News", "Sci-Fi Film Trailer Drops"],
+  ["EcoCharge Power", "Portable Solar Lantern Back in Stock"],
+  ["SnackJoy Press", "Pretzel Chips With Honey Glaze"],
+  ["BeautySpot Co.", "Moisturizer With Shea Butter"],
+  ["MusicStream Media", "Pop Artist Announces Tour"],
+  ["CityEvents Media", "Outdoor Market Dates Posted"],
+  ["CampusBeat Press", "Students Prefer Digital Notes"],
+  ["GardenGlow Media", "Self-Watering Plant Pots Launch"]
+];
+
+
+/**********************************************
+ * JOURNALIST CLASS SYSTEM (DO NOT DUPLICATE)
+ **********************************************/
+
+// MASTER EMAIL POOLS (from your pasted travelGood, techGood, etc)
+const emailPools = {
+  travel: { good: travelGood, bad: travelBad },
+  tech: { good: techGood, bad: techBad },
+  fashion: { good: fashionGood, bad: fashionBad },
+  health: { good: healthGood, bad: healthBad },
+  politics: { good: politicsGood, bad: politicsBad }
+};
+
+// All possible journalist classes
+const journalistClasses = ["travel", "tech", "fashion", "health", "politics"];
+
+// Human-readable class descriptions
+const classDescriptions = {
+  travel:
+    "Accept travel-related pitches: destinations, flights, hotels, tourism data. Reject everything else.",
+  tech:
+    "Accept tech-related pitches: gadgets, AI, cybersecurity, software, hardware. Reject everything else.",
+  fashion:
+    "Accept fashion/beauty-related pitches: trends, designers, cosmetics, style launches. Reject everything else.",
+  health:
+    "Accept health-related pitches: medical research, wellness studies, health policy, fitness trends. Reject everything else.",
+  politics:
+    "Accept politics/government pitches: elections, policy, legislation, data, public spending. Reject everything else."
+};
+
+// Keep track of the last journalist class so we can avoid repeats
+let lastJournalistClass = null;
+
+// Random class picker (tries not to repeat the last one)
+function pickRandomClass() {
+  if (!lastJournalistClass || journalistClasses.length < 2) {
+    lastJournalistClass =
+      journalistClasses[Math.floor(Math.random() * journalistClasses.length)];
+    return lastJournalistClass;
+  }
+
+  let chosen;
+  do {
+    chosen =
+      journalistClasses[Math.floor(Math.random() * journalistClasses.length)];
+  } while (chosen === lastJournalistClass);
+
+  lastJournalistClass = chosen;
+  return chosen;
+}
+
+// Update intro modal text
+function setIntroPanelClass(jClass) {
+  const title = document.getElementById("introClassTitle");
+  const desc = document.getElementById("introClassDescription");
+  const roleHud = document.getElementById("journalistRole");
+
+  const formatted = jClass.charAt(0).toUpperCase() + jClass.slice(1);
+
+  // Intro modal text
+  if (title) {
+    title.textContent = `You are a ${formatted} JOURNALIST`;
+  }
+  if (desc) {
+    desc.textContent = classDescriptions[jClass] || "";
+  }
+
+  // Persistent HUD label during the run
+  if (roleHud) {
+    roleHud.textContent = `You are a ${formatted} JOURNALIST`;
+  }
+}
+
+// Build the EMAILS deck for this class
+function buildEmailObjectsForClass(jClass) {
+  const pool = emailPools[jClass];
+
+  const good = pool.good.map(([from, subject]) => ({
+    from,
+    subject,
+    isRelevant: true
+  }));
+
+  const bad = pool.bad.map(([from, subject]) => ({
+    from,
+    subject,
+    isRelevant: false
+  }));
+
+  return [...good, ...bad];
+}
+
+// This will store the chosen class each run
+let currentClass = "travel";
+
+document.addEventListener("DOMContentLoaded", () => {
+  // ----- State / constants (unchanged from your original) -----
+  const ROW_HEIGHT = 32;
+  const FALL_SPEED = 2.5;        // much faster base falling speed
+  let SPAWN_INTERVAL = 1000;     // base ms between new emails (1 per second)
+  // Aggressive difficulty ramp
+  // Emails spawn faster over time & fall speed increases more aggressively
+  let SPEED_RAMP_RATE = 0.992;    // shrinks interval faster each second
+  let FALL_SPEED_RAMP = 1.018;    // increases fall speed faster over time
+  let MIN_SPAWN_INTERVAL = 750;  // very rapid spawns late game
+  let MAX_FALL_SPEED = 10.0;       // higher cap on fall speed
+  let blastInterval;
+  let FALL_SPEED_DYNAMIC = FALL_SPEED;
+
+  const SHIFT_DURATION = 60;
+  let shiftTimeLeft = SHIFT_DURATION;
+  let shiftTimerInterval = null;
+
+  const gameState = {
+    score: 0,
+    processed: 0,
+    storiesPublished: 0,
+    deck: [],
+    deckIndex: 0,
+    stack: [],
+    falling: null,
+fallingMultiple: [],
+
+    isRunning: false,
+    paused: false,
+    lastSpawnTime: 0
+  };
+
+  let strikesRemaining = 3;
+
+  const inboxStackEl = document.getElementById("inboxStack");
+  const inboxStatusEl = document.getElementById("inboxStatus");
+  const feedbackEl = document.getElementById("feedbackBar");
+  const controlGroups = document.querySelectorAll(
+    ".control-bar .control-group"
+  );
+  const scoreEl = document.getElementById("scoreValue");
+  const shiftTimerEl = document.getElementById("shiftTimer");
+
+  let INBOX_HEIGHT = inboxStackEl.clientHeight || 320;
+  window.addEventListener("resize", () => {
+    const h = inboxStackEl.clientHeight;
+    if (h) INBOX_HEIGHT = h;
+  });
+
+  function popScore(isGood) {
+    const el = scoreEl;
+    if (!el) return;
+
+    el.classList.remove("score-flash-green", "score-flash-red");
+    void el.offsetWidth;
+
+    if (isGood) {
+      el.classList.add("score-flash-green");
+    } else {
+      el.classList.add("score-flash-red");
+    }
+
+    setTimeout(() => {
+      el.classList.remove("score-flash-green", "score-flash-red");
+    }, 400);
+  }
+
+  function updateStrikes() {
+    const hearts = [
+      document.getElementById("heart1"),
+      document.getElementById("heart2"),
+      document.getElementById("heart3")
+    ];
+    hearts.forEach((h, i) => {
+      if (!h) return;
+      h.style.opacity = i < strikesRemaining ? "1" : "0.25";
+    });
+  }
+
+  function triggerRedFlash() {
+    const flash = document.getElementById("redFlash");
+    if (!flash) return;
+    flash.classList.remove("flash-on");
+    void flash.offsetWidth;
+    flash.classList.add("flash-on");
+  }
+
+  function endShiftFired() {
+    if (!gameState.isRunning) return;
+    gameState.isRunning = false;
+    stopShiftTimer();
+    if (blastInterval) clearInterval(blastInterval);
+
+    const processed = gameState.processed;
+    const stories = gameState.storiesPublished;
+
+    const modal = document.getElementById("shiftModal");
+    const stats = document.getElementById("modalStats");
+    const titleEl = document.getElementById("modalTitle");
+    if (titleEl) titleEl.textContent = "YOU'RE FIRED";
+    stats.textContent = `Too many bad calls. You got through ${processed} emails and published ${stories} stories before being fired.`;
+    modal.style.display = "flex";
+
+    inboxStatusEl.textContent = "";
+    setFeedback("", "neutral");
+  }
+
+  function loseStrike() {
+    if (strikesRemaining <= 0) return;
+    strikesRemaining -= 1;
+    triggerRedFlash();
+    updateStrikes();
+    if (strikesRemaining <= 0) {
+      endShiftFired();
+    }
+  }
+
+  function flashControlGroup(index) {
+    const g = controlGroups[index];
+    if (!g) return;
+    g.classList.add("active");
+    setTimeout(() => {
+      g.classList.remove("active");
+    }, 120);
+  }
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function nextEmail() {
+    if (gameState.deckIndex >= gameState.deck.length) {
+      gameState.deck = shuffle(EMAILS);
+      gameState.deckIndex = 0;
+    }
+    return gameState.deck[gameState.deckIndex++];
+  }
+
+  function setFeedback(msg, type = "neutral") {
+    feedbackEl.textContent = msg;
+    feedbackEl.classList.remove("good", "bad", "neutral");
+    feedbackEl.classList.add(type);
+  }
+
+  function updateStats() {
+    scoreEl.textContent = gameState.score;
+  }
+
+  function bottomYForIndex(indexFromBottom) {
+    return (
+      INBOX_HEIGHT - ROW_HEIGHT - 2 - indexFromBottom * ROW_HEIGHT
+    );
+  }
+
+  function createRow(email) {
+    const row = document.createElement("div");
+    row.className = "email-row";
+    row.innerHTML = `
+      <div class="cell-checkbox">□</div>
+      <div class="cell-from">${email.from}</div>
+      <div class="cell-subject">${email.subject}</div>
+      <div class="cell-icons"><span>✕</span><span>✓</span></div>
+    `;
+    return row;
+  }
+
+  function layoutStack() {
+    const n = gameState.stack.length;
+    gameState.stack.forEach((item, index) => {
+      const indexFromBottom = n - 1 - index;
+      const y = bottomYForIndex(indexFromBottom);
+      item.y = y;
+      item.el.style.top = y + "px";
+      item.el.classList.remove("active");
+    });
+
+    if (n > 0) {
+      const active = gameState.stack[n - 1];
+      active.el.classList.add("active");
+    }
+  }
+
+  function spawnFalling() {
+    if (
+      !gameState.isRunning ||
+      gameState.paused ||
+      gameState.falling
+    )
+      return;
+
+    const email = nextEmail();
+    const row = createRow(email);
+    row.classList.add("falling");
+    const startY = -ROW_HEIGHT * 2;
+    row.style.top = startY + "px";
+    inboxStackEl.appendChild(row);
+
+    const targetY = bottomYForIndex(gameState.stack.length + gameState.fallingMultiple.length);
+
+    gameState.falling = {
+      el: row,
+      data: email,
+      y: startY,
+      targetY
+    };
+  }
+
+  // ---- Email Blast Function ----
+ function triggerEmailBlast() {
+  const banner = document.getElementById("blastAlert");
+  if (banner) {
+    banner.style.display = "block";
+    setTimeout(() => (banner.style.display = "none"), 1500);
+  }
+
+  const spamSubjects = [
+    "PRESS RELEASE: World's #1 Crypto Toothpaste Launch",
+    "Buy Followers Now – Limited Time Mega Bundle",
+    "Re: URGENT!!! Investment Opportunity (Totally Not a Scam)",
+    "New Casino App Wants to Partner on Your 'Journalism'",
+    "We Noticed Your Website – Let Us Rewrite It with AI Today!"
+  ];
+
+  // Spawn 3 independent falling spam emails
+  for (let i = 0; i < 3; i++) {
+    const subject = spamSubjects[Math.floor(Math.random() * spamSubjects.length)];
+    const email = {
+      from: "pressrelease@randompragency.com",
+      subject,
+      isRelevant: false  // always spam / irrelevant to any beat
+    };
+
+    const row = createRow(email);
+    row.classList.add("falling", "blast-email");
+    row.style.background = "#ff4f4f";
+
+    const startY = -ROW_HEIGHT * 3;
+    row.style.top = startY + "px";
+    inboxStackEl.appendChild(row);
+
+    const targetY = bottomYForIndex(gameState.stack.length + gameState.fallingMultiple.length);
+
+    // Push multiple independent fallers
+    gameState.fallingMultiple.push({
+      el: row,
+      data: email,
+      y: startY,
+      targetY,
+      blast: true
+    });
+  }
+}
+
+
+
+
+  function resetGameState() {
+    gameState.score = 0;
+    gameState.processed = 0;
+    gameState.storiesPublished = 0;
+    gameState.deck = [];
+    gameState.deckIndex = 0;
+    gameState.stack = [];
+    gameState.falling = null;
+    gameState.isRunning = false;
+    gameState.paused = false;
+    gameState.lastSpawnTime = 0;
+    gameState.fallingMultiple = [];
+
+    // Reset dynamic speed + spawn timing each new shift
+    SPAWN_INTERVAL = 1000;
+    FALL_SPEED_DYNAMIC = FALL_SPEED;
+
+    strikesRemaining = 3;
+    updateStrikes();
+
+    inboxStackEl.innerHTML = "";
+    inboxStatusEl.textContent =
+      "Use ← / → to work through your inbox.";
+    setFeedback(
+      "New shift. Judge each highlighted subject line.",
+      "neutral"
+    );
+    updateStats();
+    layoutStack();
+  }
+
+  function stopShiftTimer() {
+    if (shiftTimerInterval) {
+      clearInterval(shiftTimerInterval);
+      shiftTimerInterval = null;
+    }
+  }
+
+  function startShiftTimer() {
+    stopShiftTimer();
+    shiftTimeLeft = SHIFT_DURATION;
+    shiftTimerEl.textContent = shiftTimeLeft;
+
+    // One-time blast flag
+    let blastFired = false;
+
+    shiftTimerInterval = setInterval(() => {
+      if (!gameState.isRunning || gameState.paused) return;
+
+      shiftTimeLeft--;
+      if (shiftTimeLeft < 0) shiftTimeLeft = 0;
+      shiftTimerEl.textContent = shiftTimeLeft;
+
+      // Trigger a single spam blast at 30 seconds remaining
+      if (!blastFired && shiftTimeLeft === 30) {
+        blastFired = true;
+        triggerEmailBlast();
+      }
+
+      SPAWN_INTERVAL = Math.max(
+        MIN_SPAWN_INTERVAL,
+        SPAWN_INTERVAL * SPEED_RAMP_RATE
+      );
+      FALL_SPEED_DYNAMIC = Math.min(
+        MAX_FALL_SPEED,
+        FALL_SPEED_DYNAMIC * FALL_SPEED_RAMP
+      );
+
+      if (shiftTimeLeft <= 0) {
+        endShiftByTimer();
+      }
+    }, 1000);
+  }
+
+
+
+  function endShiftByTimer() {
+    if (!gameState.isRunning) return;
+    gameState.isRunning = false;
+    stopShiftTimer();
+    if (blastInterval) clearInterval(blastInterval);
+
+    const processed = gameState.processed;
+    const stories = gameState.storiesPublished;
+
+    const modal = document.getElementById("shiftModal");
+    const stats = document.getElementById("modalStats");
+    const titleEl = document.getElementById("modalTitle");
+    if (titleEl) titleEl.textContent = "SHIFT COMPLETE";
+    stats.textContent = `You got through ${processed} emails and published ${stories} stories.`;
+    modal.style.display = "flex";
+
+    inboxStatusEl.textContent = "";
+    setFeedback("", "neutral");
+  }
+
+  function handleDecision(acceptRelevant) {
+    if (!gameState.isRunning || gameState.paused) return;
+    if (gameState.stack.length === 0) return;
+
+    const n = gameState.stack.length;
+    const activeIdx = n - 1;
+    const active = gameState.stack[activeIdx];
+    const email = active.data;
+
+    gameState.processed += 1;
+
+    const correct =
+      acceptRelevant === email.isRelevant;
+    gameState.score += correct ? 100 : -100;
+
+    if (correct && acceptRelevant && email.isRelevant) {
+      gameState.storiesPublished += 1;
+    }
+
+    if (correct) {
+      popScore(true);
+      const rect = active.el.getBoundingClientRect();
+      spawnParticles(
+        rect.left + rect.width / 2,
+        rect.top + rect.height / 2
+      );
+      setFeedback(
+        email.isRelevant
+          ? "Nice call. That belongs in your coverage."
+          : "Good pull. That’s pure inbox clutter.",
+        "good"
+      );
+    } else {
+      popScore(false);
+      setFeedback(
+        acceptRelevant
+          ? "Ouch. You just greenlit spam."
+          : "Missed a solid story there.",
+        "bad"
+      );
+      loseStrike();
+    }
+
+    inboxStackEl.removeChild(active.el);
+    gameState.stack.splice(activeIdx, 1);
+
+    layoutStack();
+    updateStats();
+
+    if (!gameState.falling && gameState.isRunning && !gameState.paused) {
+      spawnFalling();
+    }
+  }
+
+  function gameLoop(timestamp) {
+    if (!gameState.isRunning) return;
+
+    if (!gameState.paused && gameState.falling) {
+      const f = gameState.falling;
+      f.y += f.el.classList.contains("blast-email")
+        ? 10
+        : FALL_SPEED_DYNAMIC;
+      if (f.y >= f.targetY) {
+        f.y = f.targetY;
+        f.el.classList.remove("falling");
+        gameState.stack.unshift({
+          el: f.el,
+          data: f.data,
+          y: f.y
+        });
+        gameState.falling = null;
+        layoutStack();
+      } else {
+        f.el.style.top = f.y + "px";
+      }
+    }
+// Process multiple blast fallers
+if (!gameState.paused && gameState.fallingMultiple && gameState.fallingMultiple.length > 0) {
+  for (let i = gameState.fallingMultiple.length - 1; i >= 0; i--) {
+    const f = gameState.fallingMultiple[i];
+
+    // Faster fall for blast emails
+    f.y += f.blast ? 10 : FALL_SPEED_DYNAMIC;
+
+    if (f.y >= f.targetY) {
+      // Lock into stack
+      f.y = f.targetY;
+      f.el.classList.remove("falling", "blast-email");
+
+      gameState.stack.unshift({
+        el: f.el,
+        data: f.data,
+        y: f.y
+      });
+
+      gameState.fallingMultiple.splice(i, 1);
+      layoutStack();
+    } else {
+      f.el.style.top = f.y + "px";
+    }
+  }
+}
+
+    if (!gameState.paused && !gameState.falling) {
+      if (timestamp - gameState.lastSpawnTime >= SPAWN_INTERVAL) {
+        spawnFalling();
+        gameState.lastSpawnTime = timestamp;
+      }
+    }
+
+    requestAnimationFrame(gameLoop);
+  }
+
+  function startGame() {
+    // Spaced blast scheduler
+    function scheduleBlast() {
+      setTimeout(() => {
+        if (gameState.isRunning && !gameState.paused) {
+          triggerEmailBlast();
+        }
+        // spam blast removed
+      }, 10000);
+    }
+    
+    resetGameState();
+    gameState.isRunning = true;
+    setFeedback("Shift started. Sort those pitches!", "neutral");
+    startShiftTimer();
+    // spam blast removed  // <-- added
+    // blast interval removed for spaced timer
+
+    gameState.lastSpawnTime = 0;
+    requestAnimationFrame(gameLoop);
+  }
+
+  // ----- Input -----
+  document.addEventListener("keydown", (e) => {
+    // SPACE: restart or start
+    if (e.code === "Space") {
+      e.preventDefault();
+
+      const overlay = document.getElementById("instructionsOverlay");
+      const overlayVisible =
+        overlay && !overlay.classList.contains("hidden");
+
+      const modal = document.getElementById("shiftModal");
+      const modalVisible = modal && modal.style.display !== "none";
+
+      // If the intro overlay is up, dismiss it and let its fade-out handler start the game
+      if (overlayVisible) {
+        dismissOverlayAndStart();
+        return;
+      }
+
+      // If we're at the end-of-shift screen, close it and immediately start a new run
+      if (modalVisible) {
+        modal.style.display = "none";
+
+        // Directly start a fresh shift without relying on the intro overlay transition
+        // Pick a new random journalist class
+        currentClass = pickRandomClass();
+        setIntroPanelClass(currentClass);
+
+        // Rebuild the email pool for this class
+        EMAILS = buildEmailObjectsForClass(currentClass);
+
+        // Start the game loop fresh
+        startGame();
+        return;
+      }
+
+      // Safety: if nothing is running and no modal/overlay, start via intro
+      if (!gameState.isRunning) {
+        showIntroOverlay();
+      } else if (gameState.paused) {
+        gameState.paused = false;
+        setFeedback("Back on shift.", "neutral");
+        requestAnimationFrame(gameLoop);
+      }
+      return;
+    }
+
+    if (!gameState.isRunning) return;
+
+    if (e.key === "Escape") {
+      e.preventDefault();
+      gameState.paused = !gameState.paused;
+      if (gameState.paused) {
+        setFeedback("Paused.", "neutral");
+      } else {
+        setFeedback("Back on shift.", "neutral");
+        requestAnimationFrame(gameLoop);
+      }
+      return;
+    }
+
+    if (gameState.paused) return;
+
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      flashControlGroup(0);
+      handleDecision(false);
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      flashControlGroup(1);
+      handleDecision(true);
+    }
+  });
+
+// ----- Instructions overlay handling -----
+  const overlay = document.getElementById("instructionsOverlay");
+
+  // Show the intro overlay and pick a (possibly) new journalist class
+  function showIntroOverlay() {
+    if (!overlay) return;
+
+    // Pick a random class each time we show the intro
+    currentClass = pickRandomClass();
+    setIntroPanelClass(currentClass);
+
+    // Reset fade state and make sure it's visible
+    overlay.classList.remove("hidden", "fade-out");
+    overlay.style.opacity = "";
+  }
+
+  function dismissOverlayAndStart() {
+    if (!overlay || overlay.classList.contains("fade-out")) return;
+    overlay.classList.add("fade-out");
+  }
+
+  // Clicking anywhere on the overlay dismisses it
+  overlay.addEventListener("click", () => {
+    if (overlay.classList.contains("hidden")) return;
+    dismissOverlayAndStart();
+  });
+
+  // Any keypress while the intro is visible will also dismiss it
+  document.addEventListener("keydown", (evt) => {
+    if (!overlay || overlay.classList.contains("hidden")) return;
+    dismissOverlayAndStart();
+  });
+
+  // When fade-out transition finishes, hide overlay and start game
+  overlay.addEventListener("transitionend", (evt) => {
+    if (evt.target !== overlay) return;
+    if (!overlay.classList.contains("fade-out")) return;
+
+    overlay.classList.add("hidden");
+    overlay.classList.remove("fade-out");
+
+    // Build EMAILS from the chosen class and start
+    EMAILS = buildEmailObjectsForClass(currentClass);
+    startGame();
+  });
+
+  // First load: show intro overlay right away
+  showIntroOverlay();
+});
+// Existing particle system (unchanged)
+function spawnParticles(x, y) {
+  const count = 14;
+  const PARTICLE_COLORS = [
+    "#4ade80",
+    "#60a5fa",
+    "#f472b6",
+    "#facc15",
+    "#fb7185",
+    "#a78bfa"
+  ];
+
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement("div");
+    p.className = "particle";
+
+    p.style.background =
+      PARTICLE_COLORS[
+        Math.floor(Math.random() * PARTICLE_COLORS.length)
+      ];
+
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 2 + Math.random() * 4;
+
+    let vx = Math.cos(angle) * speed;
+    let vy = Math.sin(angle) * speed;
+
+    let px = x;
+    let py = y;
+
+    p.style.left = px + "px";
+    p.style.top = py + "px";
+
+    document.body.appendChild(p);
+
+    let life = 0;
+
+    function animate() {
+      life++;
+      px += vx;
+      py += vy;
+      vy += 0.25;
+
+      p.style.left = px + "px";
+      p.style.top = py + "px";
+      p.style.opacity = 1 - life / 32;
+
+      if (life < 32) requestAnimationFrame(animate);
+      else p.remove();
+    }
+
+    animate();
+  }
+}
+</script>
+
+
+<div id="shiftModal" style="
+position:fixed; inset:0; background:rgba(0,0,0,0.8);
+display:none; align-items:center; justify-content:center;
+z-index:99999; font-family:'Press Start 2P',system-ui,sans-serif;">
+<div style="
+background:#0b1422; border:4px solid #1d4f91; padding:24px;
+color:#ffc845; max-width:500px; text-align:center; line-height:1.8;">
+<h2 id="modalTitle" style="font-size:18px; margin-top:0;">SHIFT COMPLETE</h2>
+<p id="modalStats" style="font-size:12px; color:#f4f7ff;"></p>
+<p style="margin-top:20px; font-size:12px; color:#9fb4d6;">Press SPACE to start a new shift</p>
+</div>
+</div>
+
+<div id="blastAlert" style="display:none;position:absolute;top:0;left:0;width:100%;text-align:center;background:#ff0000;color:white;font-family:'Press Start 2P';font-size:14px;padding:6px;z-index:9999;">EMAIL BLAST ALERT</div>
+<div id="redFlash"></div>
+</body>
+</html>
